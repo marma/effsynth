@@ -6,6 +6,7 @@ import wikipedia
 
 from utils.misc import *
 
+suported_latin_languages = [ "en", "sv" ]
 
 class TextlineGenerator:
 
@@ -15,7 +16,7 @@ class TextlineGenerator:
             max_length, font_sizes, max_spaces, num_geom_p, max_numbers,
             language, vertical, spec_seqs, char_dist, char_dist_std,
             p_specseq, word_bbox, real_words, single_words, specseq_count,
-            wiki_text, case_aug
+            wiki_text, case_aug, words_file
         ):
 
         self.setname = setname
@@ -31,7 +32,7 @@ class TextlineGenerator:
         self.max_spaces = max_spaces
         self.num_geom_p = num_geom_p
         self.max_numbers = max_numbers
-        self.low_chars = ",.ygjqp" if language == "en" else ""
+        self.low_chars = ",.ygjqp" if language in suported_latin_languages else ""
         self.language = language
         self.vertical = vertical
         self.spec_seqs = spec_seqs.split("|") if not spec_seqs is None else None
@@ -44,10 +45,9 @@ class TextlineGenerator:
             assert round(sum(self.p_specseq), 4) == 1., f"Probs of spec seqs do not add to 1! ({sum(self.p_specseq)})"
         self.word_bbox = word_bbox
         if real_words > 0 or single_words:
-            assert os.name == "posix", "Not a unix OS; adding in real words won't work!"
-            with open("/usr/share/dict/words", "r") as f:
-                words = re.sub("[^\w]", " ",  f.read()).split()
-            self.words = words
+            assert words_file, "real_words and single_words need a words_file to work"
+            with open(words_file) as f:
+                self.words = [ x for x in f if x ]
         self.num_real_words = real_words
         self.single_words = single_words
         self.wiki_text = wiki_text
@@ -136,7 +136,7 @@ class TextlineGenerator:
 
         random_page = None
         while random_page is None:
-            random_page = self.wiki_check("https://en.wikipedia.org/wiki/Special:Random")
+            random_page = self.wiki_check(wikipedia.random())
         
         random_content = self.clean_wiki_text(random_page.content)
 
@@ -312,7 +312,7 @@ class TextlineGenerator:
 
         if self.language == "jp" or self.language == "ja":
             out_dict = self.generate_synthetic_textline_image_character_based(textline_text)
-        elif self.language == "en":
+        elif self.language in suported_latin_languages:
             out_dict = self.generate_synthetic_textline_image_latin_based(textline_text)
             
         out_image = self.synth_transform(out_dict["image"])

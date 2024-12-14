@@ -63,6 +63,8 @@ if __name__ == '__main__':
         help="Number of real words to insert in generated textlines")
     parser.add_argument('--wiki_text', action='store_true', default=False,
         help="Pull generated text sequences randomly from Wikipedia")
+    parser.add_argument('--words_file', type=str, default=False,
+        help="Use a language specific words file to generate text")
     parser.add_argument('--case_aug', action='store_true', default=False,
         help="Augment the case of words (first upper, all upper, all lower) when generating real words")
     args = parser.parse_args()
@@ -118,7 +120,8 @@ if __name__ == '__main__':
             args.language, args.vertical, args.specific_seqs,
             args.char_dist, args.char_dist_std, args.p_spec_seqs,
             args.word_bbox, args.real_words, args.single_words,
-            args.spec_seq_count, args.wiki_text, args.case_aug
+            args.spec_seq_count, args.wiki_text, args.case_aug,
+            args.words_file
         )
 
         for image_id in tqdm(range(count)):
