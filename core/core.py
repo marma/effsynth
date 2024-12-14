@@ -47,7 +47,7 @@ class TextlineGenerator:
         if real_words > 0 or single_words:
             assert words_file, "real_words and single_words need a words_file to work"
             with open(words_file) as f:
-                self.words = [ x for x in f if x ]
+                self.words = [ x for x in f.read().split() if x ]
         self.num_real_words = real_words
         self.single_words = single_words
         self.wiki_text = wiki_text
